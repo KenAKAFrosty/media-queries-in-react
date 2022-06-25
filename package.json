@@ -1,0 +1,30 @@
+{
+  "name": "media-queries-in-react",
+  "version": "0.1.0",
+  "description": "Easily use any media queries you want, however you want - all inside the JSX of a React component",
+  "main": "useMediaQueries.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KenAKAFrosty/media-queries-in-react.git"
+  },
+  "keywords": [
+    "Media Query React",
+    "Media Queries React",
+    "Media Query",
+    "Media Queries",
+    "React",
+    "JSX",
+    "TSX",
+    "CSS",
+    "TypeScript"
+  ],
+  "author": "KenAKAFrosty",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KenAKAFrosty/media-queries-in-react/issues"
+  },
+  "homepage": "https://github.com/KenAKAFrosty/media-queries-in-react#readme"
+}
