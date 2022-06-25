@@ -9,7 +9,12 @@ If so, we'll get you up and running in just a minute or few!
 
 ## Importing and setting up
 
-### First, just one import:
+### First, in your terminal while in the root directory of your project:
+```
+npm i media-queries-in-react
+```
+
+### Then, in the file with the React component you want to use, just one import:
 ``` js
 import useMediaQueries from "media-queries-in-react" 
 ```
