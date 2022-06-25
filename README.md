@@ -130,7 +130,8 @@ export default function Component(){
 
 ### So far these are pretty simple examples, but where this can come in very handy is when you need to combine a media query with some other conditon or piece of data, like a prop.
 
-##### (That other data usually won't be available to your CSS, so it becomes a song and dance to get the two to cooperate, and breaks easily.)
+##### ( You may have run into this before. That other data usually won't be available to your CSS, so when you try to coordinate your CSS with everything going on in your JSX, it's a pain and it breaks easily. Not anymore! 😀)
+
 <br>
 <br>
 
