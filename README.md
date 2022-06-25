@@ -204,4 +204,4 @@ const mediaQueries = useMediaQueries({
 ```
 
 - ## To be continued... 
-- If you discover useful tips or helpful ways to implement, please don't hesitate to open a Pull Request with the example, or an Issue to discuss!)
+- If you discover useful tips or helpful ways to implement, please don't hesitate to open a Pull Request with the tip, or an Issue to discuss!
