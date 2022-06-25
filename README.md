@@ -141,7 +141,6 @@ export default function Component({user}){
         isDesktop: "(hover) and (pointer: fine)"
     });
 
-    const welcomeMessage = user.isLongTermMember &&
     return() { 
         <p>
             Hello, {mediaQueries.isDesktop ? "desktop" : "mobile"} user!
