@@ -1,39 +1,30 @@
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
-
 export type StringToString = { [key: string]: string }
 export type QueryLists = { [key: string]: MediaQueryList }
-export type QueriesMatches = { [key: string]: boolean }
+export type QueryMatches = { [key: string]: boolean }
 
-export default function useMediaQueries<T extends StringToString>(queriesByFriendlyNames: T): { [Property in keyof T]: boolean } { 
-    const initialQueriesMatches: QueriesMatches = {};
-    for (const friendlyName in queriesByFriendlyNames) {
-        const query = queriesByFriendlyNames[friendlyName];
-        initialQueriesMatches[friendlyName] = initialQueriesMatches[friendlyName] || false;
-        initialQueriesMatches[query] = initialQueriesMatches[query] || false;
-    }
-
+export default function useMediaQueries<T extends StringToString>(
+    queriesByFriendlyNames: T
+): { [Property in keyof T]: boolean } {
+    const initialQueryMatches = getInitialQueryMatches(queriesByFriendlyNames);
+    const [staleQueryMatches, queueUpdateQueryMatches] = useState<QueryMatches>(initialQueryMatches);
     const queryLists: QueryLists = {}
-    const [staleQueriesMatches, queueUpdateQueriesMatches] = useState<QueriesMatches>(initialQueriesMatches);
 
     useEffect(onceAfterFirstRender, [])
     function onceAfterFirstRender() {
         loadQueryListsFromWindow(queryLists, queriesByFriendlyNames);
-        const updatedQueriesMatches: QueriesMatches = {}
-        for (const friendlyName in queriesByFriendlyNames) {
-            const query = queriesByFriendlyNames[friendlyName]
-            updatedQueriesMatches[query] = queryLists[query]?.matches;
-        };
-        syncFriendlyNamesWithQueries(updatedQueriesMatches, queriesByFriendlyNames)
-        queueUpdateQueriesMatches(updatedQueriesMatches);
+        const updatedQueryMatches = getUpdatedQueryMatches(queriesByFriendlyNames, queryLists)
+        syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames)
+        queueUpdateQueryMatches(updatedQueryMatches);
         const listenerReferencesByQuery = addListenersAndGetTheirReferences(
-            staleQueriesMatches,
+            updatedQueryMatches,
             queryLists,
             queriesByFriendlyNames,
-            queueUpdateQueriesMatches
+            queueUpdateQueryMatches
         )
 
-        function cleanup() { 
+        function cleanup() {
             for (const query in listenerReferencesByQuery) {
                 queryLists[query].removeEventListener('change', listenerReferencesByQuery[query])
             }
@@ -41,51 +32,78 @@ export default function useMediaQueries<T extends StringToString>(queriesByFrien
         return cleanup
     }
 
-    const proxy = getQueriesProxy(staleQueriesMatches, queriesByFriendlyNames);
+    const proxy = getQueriesProxy(staleQueryMatches, queriesByFriendlyNames);
     return proxy as { [Property in keyof T]: boolean };
 }
 
+function getInitialQueryMatches(queriesByFriendlyNames: StringToString): QueryMatches {
+    const initialQueryMatches: QueryMatches = {};
+    for (const friendlyName in queriesByFriendlyNames) {
+        const query = queriesByFriendlyNames[friendlyName];
+        initialQueryMatches[friendlyName] = false;
+        initialQueryMatches[query] = false;
+    }
+    return initialQueryMatches
+}
 
-function loadQueryListsFromWindow(queryLists: QueryLists, queryInputs: StringToString) {
-    for (const friendlyName in queryInputs) {
-        const query = queryInputs[friendlyName]
+
+function loadQueryListsFromWindow(queryLists: QueryLists, queriesByFriendlyNames: StringToString) {
+    for (const friendlyName in queriesByFriendlyNames) {
+        const query = queriesByFriendlyNames[friendlyName]
         queryLists[query] = window.matchMedia(query);
         queryLists[friendlyName] = queryLists[query]
     }
 }
 
+function getUpdatedQueryMatches(queriesByFriendlyNames: StringToString, queryLists: QueryLists) {
+    const updatedQueryMatches: QueryMatches = {}
+    for (const friendlyName in queriesByFriendlyNames) {
+        const query = queriesByFriendlyNames[friendlyName]
+        updatedQueryMatches[query] = queryLists[query]?.matches;
+    };
+    return updatedQueryMatches
+}
+
 function addListenersAndGetTheirReferences(
-    queriesMatches: QueriesMatches,
+    queryMatches: QueryMatches,
     queryLists: QueryLists,
     queryInputs: StringToString,
     queueUpdateQueriesMatches: Dispatch<SetStateAction<{ [key: string]: boolean }>>
 ) {
 
     const listenersByQuery: { [key: string]: any } = {};
-
-    for (const queryList in queryLists) {
+    for (const query in queryLists) {
         const listener = (event: MediaQueryListEvent) => {
-
             const currentList = event.target as MediaQueryList;
             queueUpdateQueriesMatches(currentMatches => {
-                const updated = { ...currentMatches };
-                updated[queryList] = currentList.matches;
-                syncFriendlyNamesWithQueries(updated, queryInputs);
-                return updated
+                return queriesMatchesUpdater(currentMatches, query, currentList.matches, queryInputs)
             })
-            queriesMatches[queryList] = currentList.matches
-
         }
-        queryLists[queryList].addEventListener('change', listener);
-        listenersByQuery[queryList] = listener;
+        queryLists[query].addEventListener('change', listener);
+        listenersByQuery[query] = listener;
     }
     return listenersByQuery
 }
 
+function queriesMatchesUpdater(
+    currentMatches: QueryMatches,
+    query: string,
+    matches: boolean,
+    queryInputs: StringToString,
+) {
+    const noActualChange = currentMatches[query] === matches
+    if (noActualChange){ return currentMatches };
 
-function syncFriendlyNamesWithQueries(queries: QueriesMatches, queryInputs: StringToString) {
-    for (const key in queryInputs) {
-        queries[key] = queries[queryInputs[key]]
+    const updated = { ...currentMatches };
+    updated[query] = matches;
+    syncFriendlyNamesWithQueries(updated, queryInputs);
+    return updated
+}
+
+
+function syncFriendlyNamesWithQueries(queriesMatches: QueryMatches, queryInputs: StringToString) {
+    for (const friendlyName in queryInputs) {
+        queriesMatches[friendlyName] = queriesMatches[queryInputs[friendlyName]]
     }
 }
 
