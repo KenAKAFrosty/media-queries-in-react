@@ -18,7 +18,6 @@ export default function useMediaQueries<T extends StringToString>(
         syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames)
         queueUpdateQueryMatches(updatedQueryMatches);
         const listenerReferencesByQuery = addListenersAndGetTheirReferences(
-            updatedQueryMatches,
             queryLists,
             queriesByFriendlyNames,
             queueUpdateQueryMatches
@@ -65,7 +64,6 @@ function getUpdatedQueryMatches(queriesByFriendlyNames: StringToString, queryLis
 }
 
 function addListenersAndGetTheirReferences(
-    queryMatches: QueryMatches,
     queryLists: QueryLists,
     queryInputs: StringToString,
     queueUpdateQueriesMatches: Dispatch<SetStateAction<{ [key: string]: boolean }>>
