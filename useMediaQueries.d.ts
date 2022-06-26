@@ -1,5 +1,3 @@
-export declare type SetStateAction<S> = S | ((prevState: S) => S);
-export declare type Dispatch<A> = (value: A) => void;
 export declare type StringToString = {
     [key: string]: string;
 };
