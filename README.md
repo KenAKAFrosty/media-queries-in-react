@@ -39,8 +39,6 @@ export default function Component(){
 ```
 
 The argument you pass into `useMediaQueries()` is a simple javascript object where the keys are the friendly names you'd like to have for your queries, and the values are the media query strings ([Here's a link to the MDN docs for all the available queries, and the syntax](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries)). 
-###### Note: if you pass an invalid query string it will always evaluate to `false`
-<br>
 
 Just to be clear, the above example could just as easily use `under400` as the key for its query, and could have included other queries as well:
 ```js
@@ -65,6 +63,8 @@ The keys you choose are completely up to you.
 When you define your queries and their friendly names within `useMediaQueries()`, it returns to you an object with the same keys (your friendly names). 
 
 The value of any given key is a boolean, representing if that media query is matched. 
+###### Note: if you passed an invalid query string it will always evaluate to `false`
+<br>
 
 ### Using the first example from above:
  
