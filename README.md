@@ -1,7 +1,7 @@
 
 # Media Queries in React
 
-You might find you want to use the power of CSS media queries but within your React component. If you've wanted to know things like if the user's device is wider than 400px, then in CSS you could just write something like  `@media screen and (min-width: 400px)`.
+You might find you want to use the power of CSS media queries but within your React component. If you've wanted to know things like if the user's device at least 400px wide, then in CSS you could just write something like  `@media screen and (min-width: 400px)`.
 
 But there are plenty of reasons you may want that same functionality within your React components, too. If so, we'll get you up and running within mintues!
 <br>
