@@ -38,7 +38,9 @@ export default function Component(){
     return() { ...
 ```
 
-The argument you pass into `useMediaQueries()` is a simple javascript object where the keys are the friendly names you'd like to have for your queries, and the values are the media query strings ([Here's a link to the MDN docs for all the available queries, and the syntax](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries)).
+The argument you pass into `useMediaQueries()` is a simple javascript object where the keys are the friendly names you'd like to have for your queries, and the values are the media query strings ([Here's a link to the MDN docs for all the available queries, and the syntax](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries)). 
+###### Note: if you pass an invalid query string it will always evaluate to `false`
+<br>
 
 Just to be clear, the above example could just as easily use `under400` as the key for its query, and could have included other queries as well:
 ```js
@@ -52,7 +54,8 @@ export default function Component(){
 
     return() { ...
 ```
-The keys you choose are completely up to you. 
+The keys you choose are completely up to you.
+
 <br>
 <br>
 
