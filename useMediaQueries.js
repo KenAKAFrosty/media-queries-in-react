@@ -74,4 +74,3 @@ function getQueriesProxy(queries, queryInputs) {
         }
     });
 }
-//# sourceMappingURL=useMediaQueries.js.map

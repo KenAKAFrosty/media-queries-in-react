@@ -1,6 +1,9 @@
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
 
-type StringToString = { [key: string]: string }
+export type SetStateAction<S> = S | ((prevState: S) => S); //from react
+export type Dispatch<A> = (value: A) => void; //from react
+
+export type StringToString = { [key: string]: string }
 export type QueryLists = { [key: string]: MediaQueryList }
 export type QueriesMatches = { [key: string]: boolean }
 

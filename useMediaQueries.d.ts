@@ -1,4 +1,6 @@
-declare type StringToString = {
+export declare type SetStateAction<S> = S | ((prevState: S) => S);
+export declare type Dispatch<A> = (value: A) => void;
+export declare type StringToString = {
     [key: string]: string;
 };
 export declare type QueryLists = {
@@ -10,6 +12,3 @@ export declare type QueriesMatches = {
 export default function useMediaQueries<T extends StringToString>(queriesByFriendlyNames: T): {
     [Property in keyof T]: boolean;
 };
-declare module 'media-queries-in-react'
-export {};
-//# sourceMappingURL=useMediaQueries.d.ts.map
