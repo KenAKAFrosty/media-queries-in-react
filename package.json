@@ -1,6 +1,6 @@
 {
   "name": "media-queries-in-react",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Easily use any media queries you want, however you want - all inside the JSX of a React component",
   "dependencies": {
     "react": "^18"
