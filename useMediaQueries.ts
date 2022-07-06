@@ -1,26 +1,37 @@
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
+interface CustomWindow extends Window {
+    cachedMediaQueries: QueryLists,
+    cachedMediaQueriesCounts: { [key: string]: number }
+}
+declare let window: CustomWindow;
+
 export type StringToString = { [key: string]: string }
 export type QueryLists = { [key: string]: MediaQueryList }
 export type QueryMatches = { [key: string]: boolean }
+
+if (typeof window !== "undefined") {
+    window.cachedMediaQueries = window.cachedMediaQueries || {};
+}
 
 export default function useMediaQueries<T extends StringToString>(
     queriesByFriendlyNames: T
 ): { [Property in keyof T]: boolean } {
     const initialQueryMatches = getInitialQueryMatches(queriesByFriendlyNames);
-    const [staleQueryMatches, queueUpdateQueryMatches] = useState<QueryMatches>(initialQueryMatches);
-    const queryLists: QueryLists = {}
+    const [queryMatches, queueSetQueryMatches] = useState<QueryMatches>(initialQueryMatches);
+    const queryLists: QueryLists = {};
+
 
     useEffect(onceAfterFirstRender, [])
     function onceAfterFirstRender() {
         loadQueryListsFromWindow(queryLists, queriesByFriendlyNames);
         const updatedQueryMatches = getUpdatedQueryMatches(queriesByFriendlyNames, queryLists)
         syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames)
-        queueUpdateQueryMatches(updatedQueryMatches);
+        queueSetQueryMatches(updatedQueryMatches);
         const listenerReferencesByQuery = addListenersAndGetTheirReferences(
             queryLists,
             queriesByFriendlyNames,
-            queueUpdateQueryMatches
+            queueSetQueryMatches
         )
 
         function cleanup() {
@@ -31,7 +42,7 @@ export default function useMediaQueries<T extends StringToString>(
         return cleanup
     }
 
-    const proxy = getQueriesProxy(staleQueryMatches, queriesByFriendlyNames);
+    const proxy = getQueriesProxy(queryMatches, queriesByFriendlyNames);
     return proxy as { [Property in keyof T]: boolean };
 }
 
@@ -48,9 +59,13 @@ function getInitialQueryMatches(queriesByFriendlyNames: StringToString): QueryMa
 
 function loadQueryListsFromWindow(queryLists: QueryLists, queriesByFriendlyNames: StringToString) {
     for (const friendlyName in queriesByFriendlyNames) {
-        const query = queriesByFriendlyNames[friendlyName]
-        queryLists[query] = window.matchMedia(query);
-        queryLists[friendlyName] = queryLists[query]
+        const query = queriesByFriendlyNames[friendlyName];
+        if (!window.cachedMediaQueries[query]) {
+            window.cachedMediaQueries[query] = window.matchMedia(query);
+        }
+        const queryList = window.cachedMediaQueries[query];
+        window.cachedMediaQueries[query] = queryList;
+        queryLists[query] = queryList;
     }
 }
 
@@ -90,7 +105,7 @@ function queriesMatchesUpdater(
     queryInputs: StringToString,
 ) {
     const noActualChange = currentMatches[query] === matches
-    if (noActualChange){ return currentMatches };
+    if (noActualChange) { return currentMatches };
 
     const updated = { ...currentMatches };
     updated[query] = matches;

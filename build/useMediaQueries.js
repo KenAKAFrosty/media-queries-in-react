@@ -1,17 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = require("react");
+if (typeof window !== "undefined") {
+    window.cachedMediaQueries = window.cachedMediaQueries || {};
+}
 function useMediaQueries(queriesByFriendlyNames) {
     const initialQueryMatches = getInitialQueryMatches(queriesByFriendlyNames);
-    const [staleQueryMatches, queueUpdateQueryMatches] = (0, react_1.useState)(initialQueryMatches);
+    const [queryMatches, queueSetQueryMatches] = (0, react_1.useState)(initialQueryMatches);
     const queryLists = {};
     (0, react_1.useEffect)(onceAfterFirstRender, []);
     function onceAfterFirstRender() {
         loadQueryListsFromWindow(queryLists, queriesByFriendlyNames);
         const updatedQueryMatches = getUpdatedQueryMatches(queriesByFriendlyNames, queryLists);
         syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames);
-        queueUpdateQueryMatches(updatedQueryMatches);
-        const listenerReferencesByQuery = addListenersAndGetTheirReferences(updatedQueryMatches, queryLists, queriesByFriendlyNames, queueUpdateQueryMatches);
+        queueSetQueryMatches(updatedQueryMatches);
+        const listenerReferencesByQuery = addListenersAndGetTheirReferences(queryLists, queriesByFriendlyNames, queueSetQueryMatches);
         function cleanup() {
             for (const query in listenerReferencesByQuery) {
                 queryLists[query].removeEventListener('change', listenerReferencesByQuery[query]);
@@ -19,7 +22,7 @@ function useMediaQueries(queriesByFriendlyNames) {
         }
         return cleanup;
     }
-    const proxy = getQueriesProxy(staleQueryMatches, queriesByFriendlyNames);
+    const proxy = getQueriesProxy(queryMatches, queriesByFriendlyNames);
     return proxy;
 }
 exports.default = useMediaQueries;
@@ -35,8 +38,12 @@ function getInitialQueryMatches(queriesByFriendlyNames) {
 function loadQueryListsFromWindow(queryLists, queriesByFriendlyNames) {
     for (const friendlyName in queriesByFriendlyNames) {
         const query = queriesByFriendlyNames[friendlyName];
-        queryLists[query] = window.matchMedia(query);
-        queryLists[friendlyName] = queryLists[query];
+        if (!window.cachedMediaQueries[query]) {
+            window.cachedMediaQueries[query] = window.matchMedia(query);
+        }
+        const queryList = window.cachedMediaQueries[query];
+        window.cachedMediaQueries[query] = queryList;
+        queryLists[query] = queryList;
     }
 }
 function getUpdatedQueryMatches(queriesByFriendlyNames, queryLists) {
@@ -49,7 +56,7 @@ function getUpdatedQueryMatches(queriesByFriendlyNames, queryLists) {
     ;
     return updatedQueryMatches;
 }
-function addListenersAndGetTheirReferences(queryMatches, queryLists, queryInputs, queueUpdateQueriesMatches) {
+function addListenersAndGetTheirReferences(queryLists, queryInputs, queueUpdateQueriesMatches) {
     const listenersByQuery = {};
     for (const query in queryLists) {
         const listener = (event) => {
