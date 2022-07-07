@@ -24,18 +24,19 @@ export default function useMediaQueries<T extends StringToString>(
     useEffect(onceAfterFirstRender, [])
     function onceAfterFirstRender() {
         loadQueryListsFromWindow(queryLists, queriesByFriendlyNames);
-        const updatedQueryMatches = getUpdatedQueryMatches(queriesByFriendlyNames, queryLists)
-        syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames)
+        const updatedQueryMatches = getUpdatedQueryMatches(queriesByFriendlyNames, queryLists);
+        syncFriendlyNamesWithQueries(updatedQueryMatches, queriesByFriendlyNames);
+
         queueSetQueryMatches(updatedQueryMatches);
-        const listenerReferencesByQuery = addListenersAndGetTheirReferences(
+        const listenerReferences = addListenersAndGetTheirReferences(
             queryLists,
             queriesByFriendlyNames,
             queueSetQueryMatches
         )
 
         function cleanup() {
-            for (const query in listenerReferencesByQuery) {
-                queryLists[query].removeEventListener('change', listenerReferencesByQuery[query])
+            for (const query in listenerReferences) {
+                queryLists[query].removeEventListener('change', listenerReferences[query])
             }
         }
         return cleanup
@@ -54,7 +55,6 @@ function getInitialQueryMatches(queriesByFriendlyNames: StringToString): QueryMa
     }
     return initialQueryMatches
 }
-
 
 function loadQueryListsFromWindow(queryLists: QueryLists, queriesByFriendlyNames: StringToString) {
     for (const friendlyName in queriesByFriendlyNames) {
@@ -87,8 +87,8 @@ function addListenersAndGetTheirReferences(
     for (const query in queryLists) {
         const listener = (event: MediaQueryListEvent) => {
             const currentList = event.target as MediaQueryList;
-            queueUpdateQueriesMatches(currentMatches => {
-                return queriesMatchesUpdater(currentMatches, query, currentList.matches, queryInputs)
+            queueUpdateQueriesMatches( (currentMatches: QueryMatches) => {
+                return queryMatchesUpdater(currentMatches, query, currentList.matches, queryInputs)
             })
         }
         queryLists[query].addEventListener('change', listener);
@@ -97,7 +97,7 @@ function addListenersAndGetTheirReferences(
     return listenersByQuery
 }
 
-function queriesMatchesUpdater(
+function queryMatchesUpdater(
     currentMatches: QueryMatches,
     query: string,
     matches: boolean,
@@ -111,7 +111,6 @@ function queriesMatchesUpdater(
     syncFriendlyNamesWithQueries(updated, queryInputs);
     return updated
 }
-
 
 function syncFriendlyNamesWithQueries(queriesMatches: QueryMatches, queryInputs: StringToString) {
     for (const friendlyName in queryInputs) {
