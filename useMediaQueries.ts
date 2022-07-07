@@ -2,7 +2,6 @@ import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
 interface CustomWindow extends Window {
     cachedMediaQueries: QueryLists,
-    cachedMediaQueriesCounts: { [key: string]: number }
 }
 declare let window: CustomWindow;
 
